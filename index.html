@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permainan Panjat Pinang</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #87CEEB;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+        }
+        #pole {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 100%;
+            background-color: #8B4513;
+        }
+        #climber {
+            position: absolute;
+            left: 52%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            bottom: 0;
+            background: url('climb.png') no-repeat;
+            background-size: 240px 60px; /* Assuming each frame is 40px wide and 60px high */
+            animation: climb-animation 0.8s steps(6) infinite; /* 6 frames */
+        }
+        #gift {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background-color: #FFD700;
+            top: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+        #start-btn {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        #popup img {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+        #close-popup {
+            margin-top: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        @keyframes climb-animation {
+            from { background-position: 0 0; }
+            to { background-position: -240px 0; } /* 6 frames, each 40px wide */
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="pole"></div>
+        <div id="climber"></div>
+        <div id="gift">🎁</div>
+        <button id="start-btn">Mulai</button>
+    </div>
+
+    <div id="popup">
+        <h2>Selamat!</h2>
+        <p>Anda memenangkan hadiah:</p>
+        <img src="https://via.placeholder.com/200x150.png?text=Sepeda" alt="Sepeda">
+        <p><strong>Sebuah Sepeda!</strong></p>
+        <button id="close-popup">Tutup</button>
+    </div>
+
+    <script>
+        const climber = document.getElementById('climber');
+        const gift = document.getElementById('gift');
+        const startBtn = document.getElementById('start-btn');
+        const popup = document.getElementById('popup');
+        const closePopupBtn = document.getElementById('close-popup');
+        let isClimbing = false;
+
+        startBtn.addEventListener('click', startClimbing);
+        closePopupBtn.addEventListener('click', closePopup);
+
+        function startClimbing() {
+            if (isClimbing) return;
+            isClimbing = true;
+            startBtn.disabled = true;
+            
+            const duration = 5000; // 5 detik untuk mencapai puncak
+            const start = performance.now();
+            
+            function climb(timestamp) {
+                const elapsed = timestamp - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const yPosition = progress * 340; // 340px adalah jarak dari bawah ke atas
+                
+                climber.style.bottom = yPosition + 'px';
+                
+                if (progress < 1) {
+                    requestAnimationFrame(climb);
+                } else {
+                    openGift();
+                }
+            }
+            
+            requestAnimationFrame(climb);
+        }
+
+        function openGift() {
+            gift.innerHTML = '🎉';
+            gift.style.fontSize = '48px';
+            setTimeout(showPopup, 500);
+        }
+
+        function showPopup() {
+            popup.style.display = 'block';
+        }
+
+        function closePopup() {
+            popup.style.display = 'none';
+            resetGame();
+        }
+
+        function resetGame() {
+            climber.style.bottom = '0px';
+            climber.style.animation = 'none'; // Reset the animation
+            void climber.offsetWidth; // Trigger reflow
+            climber.style.animation = ''; // Restart the animation
+            gift.innerHTML = '🎁';
+            gift.style.fontSize = '24px';
+            isClimbing = false;
+            startBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>
